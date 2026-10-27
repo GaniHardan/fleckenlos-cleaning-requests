@@ -15,7 +15,7 @@ export const Route = createFileRoute("/impressum")({
   component: () => (
     <div>
       <Header home={false} />
-      <main className="mx-auto max-w-3xl space-y-6 px-4 py-16 leading-relaxed">
+      <main className="mx-auto max-w-3xl space-y-6 px-4 pb-16 pt-32 leading-relaxed">
         <h1 className="text-4xl font-bold text-primary-deep">Impressum</h1>
         <section><h2 className="text-xl font-bold">Angaben gemäß § 5 DDG</h2>
           <p>Fleckenlos Gebäudereinigung<br />Inhaber: Herr Zada<br />[Straße und Hausnummer]<br />[PLZ Ort]</p></section>

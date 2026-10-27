@@ -15,7 +15,7 @@ export const Route = createFileRoute("/datenschutz")({
   component: () => (
     <div>
       <Header home={false} />
-      <main className="mx-auto max-w-3xl space-y-6 px-4 py-16 leading-relaxed">
+      <main className="mx-auto max-w-3xl space-y-6 px-4 pb-16 pt-32 leading-relaxed">
         <h1 className="text-4xl font-bold text-primary-deep">Datenschutzerklärung</h1>
         <section><h2 className="text-xl font-bold">1. Verantwortlicher</h2>
           <p>Fleckenlos Gebäudereinigung, Inhaber Herr Zada, [Anschrift], Telefon: {PHONE}.</p></section>
