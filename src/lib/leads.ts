@@ -12,7 +12,7 @@ export const leadSchema = z.object({
 });
 
 export async function submitLead(
-  data: { name: string; email?: string; phone?: string; service?: string; message?: string },
+  data: { name: string; email?: string | undefined; phone?: string | undefined; service?: string | undefined; message?: string | undefined },
   source: "formular" | "chatbot",
 ) {
   const { error } = await supabase.from("leads").insert({

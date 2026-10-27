@@ -38,11 +38,11 @@ export function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-4 rounded-3xl bg-background p-6 shadow-card sm:grid-cols-2 sm:p-8">
-      {[
+      {([
         ["name", "Name / Ansprechpartner", "text"],
         ["email", "E-Mail-Adresse", "email"],
         ["phone", "Telefonnummer / WhatsApp", "tel"],
-      ].map(([n, l, t]) => (
+      ] as const).map(([n, l, t]) => (
         <label key={n} className={n === "name" ? "sm:col-span-2" : ""}>
           <span className="mb-1.5 block text-sm font-semibold">{l} *</span>
           <input name={n} type={t} className={field} maxLength={n === "email" ? 255 : 100} />

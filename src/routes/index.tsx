@@ -197,7 +197,7 @@ function Index() {
                         <Stars />
                         <blockquote className="mt-4 text-lg leading-relaxed">„{q}“</blockquote>
                         <figcaption className="mt-5 flex items-center gap-3">
-                          <span className="grid h-10 w-10 place-items-center rounded-full bg-secondary font-bold text-primary">{n[0]}</span>
+                          <span className="grid h-10 w-10 place-items-center rounded-full bg-secondary font-bold text-primary">{n?.[0]}</span>
                           <span><b className="block">{n}</b><span className="text-xs text-muted-foreground">Google-Rezension</span></span>
                         </figcaption>
                       </figure>
