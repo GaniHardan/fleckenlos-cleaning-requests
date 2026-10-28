@@ -20,7 +20,7 @@ export function Logo() {
       alt="Fleckenlos Gebäudereinigung"
       width={154}
       height={89}
-      className="h-11 w-auto sm:h-12"
+      className="h-12 w-auto sm:h-14"
     />
   );
 }
