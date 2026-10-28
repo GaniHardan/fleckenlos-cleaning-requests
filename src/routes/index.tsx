@@ -5,10 +5,12 @@ import {
   Building2, HardHat, AppWindow, Stethoscope, Umbrella, Star, Phone, ArrowRight,
   Send, ScanSearch, Sparkles, ChevronLeft, ChevronRight, BadgeCheck, User,
 } from "lucide-react";
-import hero from "@/assets/hero-dark.jpg";
-import office from "@/assets/office.jpg";
-import team from "@/assets/team.jpg";
-import heroLight from "@/assets/hero.jpg";
+import heroA from "@/assets/real-5.png.asset.json";
+import officeA from "@/assets/real-4.png.asset.json";
+import teamA from "@/assets/real-8.png.asset.json";
+import roomA from "@/assets/real-3.png.asset.json";
+import windowA from "@/assets/real-2.png.asset.json";
+const hero = heroA.url, office = officeA.url, team = teamA.url, room = roomA.url, heroLight = windowA.url;
 import { Header, Footer, PHONE, PHONE_HREF } from "@/components/site/Chrome";
 import { Wizard } from "@/components/site/Wizard";
 import { ChatBot } from "@/components/site/ChatBot";
@@ -72,9 +74,9 @@ function Index() {
       <main>
         {/* HERO */}
         <section className="relative flex min-h-[100svh] items-center overflow-hidden">
-          <motion.img src={hero} alt="Spiegelblanke Lobby eines modernen Bürogebäudes bei Nacht" width={1920} height={1088}
+          <motion.img src={hero} alt="Herr Zada von Fleckenlos mit Reinigungsausrüstung vor dem Firmenwagen"
             initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 2.2, ease: "easeOut" }}
-            className="absolute inset-0 h-full w-full object-cover" />
+            className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
           <div className="absolute inset-0 bg-hero-overlay" />
           <div className="absolute inset-0 bg-grid opacity-60" />
           <div className="absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-primary/20 blur-[120px]" />
@@ -127,7 +129,7 @@ function Index() {
                 <h3 className="mt-6 text-3xl font-bold">Büro- & Unterhaltsreinigung</h3>
                 <p className="mt-3 max-w-md text-muted-foreground">Tägliche oder wöchentliche Sauberkeit für eine produktive Arbeitsatmosphäre – mit festen Teams und festen Zeiten.</p>
                 <div className="mt-8 grid grid-cols-3 gap-3">
-                  {[office, team, heroLight].map((src, n) => (
+                  {[office, team, room].map((src, n) => (
                     <div key={n} className="aspect-[4/3] overflow-hidden rounded-2xl">
                       <img src={src} alt="" loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
                     </div>
