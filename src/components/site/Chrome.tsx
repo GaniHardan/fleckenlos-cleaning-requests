@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, Menu, X } from "lucide-react";
 import { useState } from "react";
-import logoAsset from "@/assets/fleckenlos-logo.png.asset.json";
+import logoAsset from "@/assets/fleckenlos-logo-circle.png.asset.json";
 
 export const PHONE = "0221 65079264";
 export const PHONE_HREF = "tel:+4922165079264";
@@ -18,9 +18,9 @@ export function Logo() {
     <img
       src={logoAsset.url}
       alt="Fleckenlos Gebäudereinigung"
-      width={154}
-      height={89}
-      className="h-12 w-auto sm:h-14"
+      width={176}
+      height={176}
+      className="h-14 w-auto sm:h-16"
     />
   );
 }
