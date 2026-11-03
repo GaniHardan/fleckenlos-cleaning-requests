@@ -1,26 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import {
   Building2, HardHat, AppWindow, Stethoscope, Umbrella, Star, Phone, ArrowRight,
-  Send, ScanSearch, Sparkles, ChevronLeft, ChevronRight, BadgeCheck, User,
+  Send, ScanSearch, Sparkles, ChevronLeft, ChevronRight, BadgeCheck, User, Mail, X, ZoomIn, ShieldCheck, Clock, MapPin,
 } from "lucide-react";
 import heroA from "@/assets/real-5.png.asset.json";
 import officeA from "@/assets/real-4.png.asset.json";
 import teamA from "@/assets/real-8.png.asset.json";
 import roomA from "@/assets/real-3.png.asset.json";
 import windowA from "@/assets/real-2.png.asset.json";
+import sixA from "@/assets/real-6.png.asset.json";
+import sevenA from "@/assets/real-7.png.asset.json";
 const hero = heroA.url, office = officeA.url, team = teamA.url, room = roomA.url, heroLight = windowA.url;
-import { Header, Footer, PHONE, PHONE_HREF } from "@/components/site/Chrome";
+import { Header, Footer, EMAIL_HREF, ADDRESS } from "@/components/site/Chrome";
 import { Wizard } from "@/components/site/Wizard";
 import { ChatBot } from "@/components/site/ChatBot";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Fleckenlos Gebäudereinigung – High-End Reinigung Rhein-Ruhr" },
-      { name: "description", content: "Makellose Sauberkeit für Büros, Praxen, Bau & Industrie in Düsseldorf, Essen, Köln & Monheim. 5.0 ★ bei Google. Kostenloses Angebot in 2 Minuten." },
-      { property: "og:title", content: "Fleckenlos Gebäudereinigung – Makellose Sauberkeit im Rhein-Ruhr-Gebiet" },
+      { title: "Fleckenlos Gebäudereinigung Köln – Büro-, Bau- & Glasreinigung" },
+      { name: "description", content: "Zuverlässige & erstklassige Reinigung für Büros, Praxen, Bau & Gewerbe in Köln. 5.0 ★ bei Google. Kostenloses Angebot anfordern." },
+      { property: "og:title", content: "Fleckenlos Gebäudereinigung – Ihr Gebäudereiniger in Köln" },
       { property: "og:description", content: "High-End Gebäudereinigung: maßgeschneidert, zuverlässig, 5.0 ★ Google-Bewertung." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -38,7 +40,7 @@ const REVIEWS = [
   ["Princess Anna", "Sofort-Termin", "Heute angerufen und sofort einen Termin erhalten. Alles lief reibungslos, preislich super tragbar!"],
 ] as const;
 
-const KEYWORDS = ["Pünktlich", "Gründlich", "Zertifiziert", "Rhein-Ruhr", "Festpreise", "Kurzfristig", "Diskret", "Versichert"];
+const KEYWORDS = ["Pünktlich", "Gründlich", "Zertifiziert", "Köln", "Festpreise", "Kurzfristig", "Diskret", "Versichert"];
 
 function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
   return (
@@ -67,43 +69,45 @@ function Index() {
   const [i, setI] = useState(0);
   useEffect(() => { const t = setInterval(() => setI((x) => (x + 1) % REVIEWS.length), 6000); return () => clearInterval(t); }, []);
   const r = REVIEWS[i]!;
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 800], [0, 220]);
 
   return (
-    <div className="overflow-x-hidden">
+    <div id="top" className="overflow-x-hidden">
       <Header />
       <main>
         {/* HERO */}
         <section className="relative flex min-h-[100svh] items-center overflow-hidden">
-          <motion.img src={hero} alt="Herr Zada von Fleckenlos mit Reinigungsausrüstung vor dem Firmenwagen"
+          <motion.img style={{ y: heroY }} src={hero} alt="Herr Zada von Fleckenlos mit Reinigungsausrüstung vor dem Firmenwagen"
             initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 2.2, ease: "easeOut" }}
-            className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
+            className="absolute inset-0 h-[115%] w-full object-cover object-[70%_center]" />
           <div className="absolute inset-0 bg-hero-overlay" />
           <div className="absolute inset-0 bg-grid opacity-60" />
           <div className="absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-primary/20 blur-[120px]" />
           <div className="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-32">
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: [0, -6, 0] }} transition={{ opacity: { duration: 0.6 }, y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
               className="glass mb-8 inline-flex flex-wrap items-center gap-2 rounded-full px-4 py-2 text-sm">
-              <Stars /> <b>5.0</b> <span className="text-muted-foreground">Google Bewertung basierend auf 72+ verifizierten Kunden</span>
+              <Stars /> <b>5.0 Google Bewertung</b> <span className="text-muted-foreground">| Ihr Gebäudereiniger in Köln</span>
             </motion.div>
             <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="max-w-4xl text-5xl font-extrabold leading-[0.98] sm:text-6xl lg:text-[5.5rem]">
-              Makellose Sauberkeit für Ihr Unternehmen im <span className="text-gradient">Rhein-Ruhr-Gebiet.</span>
+              Erstklassige Sauberkeit & Werterhalt für Ihr Gebäude <span className="text-gradient">in Köln.</span>
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.35 }}
               className="mt-8 max-w-xl text-lg text-muted-foreground sm:text-xl">
-              High-End Gebäudereinigung für Büros, Praxen, Bau und Industrie. Maßgeschneidert, zuverlässig und mit modernster Ausrüstung.
+              Büroreinigung, Bauendreinigung, Glas- & Spezialreinigung – pünktlich, gründlich und flexibel.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }} className="mt-10 flex flex-col gap-3 sm:flex-row">
               <button onClick={() => setWizard(true)} className="btn-glow flex items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-bold">
-                Kostenloses Angebot in 2 Min. <ArrowRight className="h-5 w-5" />
+                Kostenloses Angebot anfordern <ArrowRight className="h-5 w-5" />
               </button>
-              <a href={PHONE_HREF} className="glass lift flex items-center justify-center gap-2 rounded-full px-8 py-4 font-bold">
-                <Phone className="h-4 w-4 text-primary" /> Direkt anrufen: {PHONE}
+              <a href={EMAIL_HREF} className="glass lift flex items-center justify-center gap-2 rounded-full px-8 py-4 font-bold">
+                <Mail className="h-4 w-4 text-primary" /> E-Mail schreiben
               </a>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="mt-14 flex items-center gap-2 text-sm text-muted-foreground">
               <span className="h-2 w-2 rounded-full bg-primary" style={{ animation: "pulse-dot 2s infinite" }} />
-              Heute noch Termine verfügbar · Düsseldorf · Essen · Köln · Monheim
+              Kurzfristige Termine verfügbar · Köln & Umgebung (Rheinland)
             </motion.div>
           </div>
         </section>
@@ -173,6 +177,9 @@ function Index() {
           </div>
         </section>
 
+        <About />
+        <Gallery />
+
         {/* TIMELINE */}
         <section id="prozess" className="relative border-y bg-card/30 py-28">
           <div className="mx-auto max-w-6xl px-4">
@@ -239,7 +246,7 @@ function Index() {
         </section>
 
         {/* WIZARD INLINE */}
-        <section id="angebot" className="relative overflow-hidden border-t py-28">
+        <section id="angebot" className="bg-animated relative overflow-hidden border-t py-28">
           <div className="absolute left-1/2 top-0 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-primary/10 blur-[140px]" />
           <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 lg:grid-cols-2">
             <Head k="Preis- & Anfrage-Konfigurator" t={<>Ihr Angebot in <span className="text-gradient">3 Klicks.</span></>} s="Objektart wählen, Fläche schätzen, Kontakt hinterlassen – wir melden uns innerhalb von 24 Stunden mit einem Festpreis." />
@@ -260,5 +267,80 @@ function Index() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+const GALLERY = [
+  { src: hero, cat: "Fuhrpark & Einsatz", alt: "Herr Zada vor dem Fleckenlos-Firmenwagen" },
+  { src: sixA.url, cat: "Fuhrpark & Einsatz", alt: "Fleckenlos im Einsatz vor Ort" },
+  { src: team, cat: "Team bei der Arbeit", alt: "Team bei der Arbeit mit Hebebühne" },
+  { src: heroLight, cat: "Team bei der Arbeit", alt: "Präzise Fensterreinigung" },
+  { src: office, cat: "Vorher / Nachher", alt: "Vorher-Nachher Großraumreinigung" },
+  { src: room, cat: "Vorher / Nachher", alt: "Gereinigter Innenraum" },
+  { src: sevenA.url, cat: "Vorher / Nachher", alt: "Arbeitsergebnis Fleckenlos" },
+];
+const CATS = ["Alle", "Fuhrpark & Einsatz", "Team bei der Arbeit", "Vorher / Nachher"] as const;
+
+function Gallery() {
+  const [cat, setCat] = useState<string>("Alle");
+  const [open, setOpen] = useState<number | null>(null);
+  const items = GALLERY.filter((g) => cat === "Alle" || g.cat === cat);
+  const cur = open === null ? null : items[open];
+  return (
+    <section id="galerie" className="mx-auto max-w-6xl px-4 py-28">
+      <Head k="Galerie" t={<>Echte Einsätze. <span className="text-gradient">Echte Ergebnisse.</span></>} s="Fuhrpark, Team und Arbeitsergebnisse – klicken zum Vergrößern." />
+      <div className="mb-8 flex flex-wrap gap-2">
+        {CATS.map((c) => (
+          <button key={c} onClick={() => { setCat(c); setOpen(null); }} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${cat === c ? "border-primary bg-primary/15 text-primary" : "glass"}`}>{c}</button>
+        ))}
+      </div>
+      <motion.div layout className="grid grid-cols-2 gap-3 md:grid-cols-3">
+        <AnimatePresence>
+          {items.map((g, n) => (
+            <motion.button layout key={g.src} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              onClick={() => setOpen(n)} className="group relative aspect-[4/3] overflow-hidden rounded-2xl border" aria-label={`${g.alt} vergrößern`}>
+              <img src={g.src} alt={g.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+              <span className="absolute inset-0 grid place-items-center bg-background/50 opacity-0 transition group-hover:opacity-100"><ZoomIn className="h-8 w-8 text-primary" /></span>
+              <span className="glass absolute bottom-2 left-2 rounded-full px-3 py-1 text-xs">{g.cat}</span>
+            </motion.button>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+      <AnimatePresence>
+        {cur && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] grid place-items-center bg-background/90 p-4 backdrop-blur-md" onClick={() => setOpen(null)} role="dialog" aria-modal="true" aria-label="Bildansicht">
+            <button className="absolute right-5 top-5" aria-label="Schließen"><X className="h-8 w-8" /></button>
+            <button className="glass absolute left-4 grid h-12 w-12 place-items-center rounded-full" aria-label="Vorheriges Bild" onClick={(e) => { e.stopPropagation(); setOpen((open! + items.length - 1) % items.length); }}><ChevronLeft /></button>
+            <motion.img key={cur.src} initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} src={cur.src} alt={cur.alt} className="max-h-[85vh] max-w-full rounded-2xl shadow-card" onClick={(e) => e.stopPropagation()} />
+            <button className="glass absolute right-4 grid h-12 w-12 place-items-center rounded-full" aria-label="Nächstes Bild" onClick={(e) => { e.stopPropagation(); setOpen((open! + 1) % items.length); }}><ChevronRight /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
+function About() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"]);
+  return (
+    <section id="ueber-uns" ref={ref} className="relative overflow-hidden border-y py-28">
+      <motion.img style={{ y }} src={sixA.url} alt="" aria-hidden className="absolute inset-0 h-[125%] w-full object-cover opacity-20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/70 to-background" />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 lg:grid-cols-2">
+        <Head k="Über uns" t={<>Ihr Partner für Sauberkeit <span className="text-gradient">in Köln.</span></>} s="Fleckenlos Gebäudereinigung steht für zuverlässige & erstklassige Reinigungsleistungen für Büros, Praxen, Bau & Gewerbe – persönlich betreut von Herrn Zada." />
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[[ShieldCheck, "Zuverlässig", "Feste Ansprechpartner und verbindliche Termine."], [Clock, "Flexibel", "Auch kurzfristig und außerhalb Ihrer Öffnungszeiten."], [Sparkles, "Gründlich", "Moderne Ausrüstung für sichtbar saubere Ergebnisse."], [MapPin, "Lokal", ADDRESS]].map(([I, t, d], n) => {
+            const Icon = I as typeof ShieldCheck;
+            return (
+              <Reveal key={n} delay={n * 0.1}>
+                <div className="glass lift h-full rounded-2xl p-6"><Icon className="h-7 w-7 text-primary" /><h3 className="mt-4 text-lg font-bold">{t as string}</h3><p className="mt-1 text-sm text-muted-foreground">{d as string}</p></div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
