@@ -22,6 +22,7 @@ export const Route = createFileRoute("/impressum")({
         <section><h2 className="text-xl font-bold">Kontakt</h2><p>Telefon: {PHONE}<br />E-Mail: info@fleckenlos.nrw</p></section>
         <section><h2 className="text-xl font-bold">Umsatzsteuer</h2>
           <p>Gemäß § 19 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer berechnet und daher auch nicht ausgewiesen.</p></section>
+        <section><h2 className="text-xl font-bold">Datenschutz-Aufsichtsbehörde</h2><p>Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen (LDI NRW), Kavalleriestraße 2–4, 40213 Düsseldorf.</p></section>
         <section><h2 className="text-xl font-bold">Verbraucherstreitbeilegung</h2>
           <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p></section>
         <section><h2 className="text-xl font-bold">Webdesign & technische Betreuung</h2>

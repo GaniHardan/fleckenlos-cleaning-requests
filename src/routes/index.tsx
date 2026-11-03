@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import {
-  Building2, HardHat, AppWindow, Stethoscope, Umbrella, Star, Phone, ArrowRight,
+  Building2, HardHat, AppWindow, Stethoscope, Umbrella, Star, ArrowRight,
   Send, ScanSearch, Sparkles, ChevronLeft, ChevronRight, BadgeCheck, User, Mail, X, ZoomIn, ShieldCheck, Clock, MapPin,
 } from "lucide-react";
 import heroA from "@/assets/real-5.png.asset.json";
