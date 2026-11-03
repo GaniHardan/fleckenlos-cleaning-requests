@@ -18,10 +18,11 @@ export const Route = createFileRoute("/impressum")({
       <main className="mx-auto max-w-3xl space-y-6 px-4 pb-16 pt-32 leading-relaxed">
         <h1 className="text-4xl font-bold text-primary-deep">Impressum</h1>
         <section><h2 className="text-xl font-bold">Angaben gemäß § 5 DDG</h2>
-          <p>Fleckenlos Gebäudereinigung<br />Inhaber: Herr Zada<br />[Straße und Hausnummer]<br />[PLZ Ort]</p></section>
-        <section><h2 className="text-xl font-bold">Kontakt</h2><p>Telefon: {PHONE}<br />E-Mail: [E-Mail-Adresse]</p></section>
+          <p>Fleckenlos Gebäudereinigung<br />Inhaber: Herr Zada<br />Oskar-Schindler-Str. 09<br />50769 Köln</p></section>
+        <section><h2 className="text-xl font-bold">Kontakt</h2><p>Telefon: {PHONE}<br />E-Mail: info@fleckenlos.nrw</p></section>
         <section><h2 className="text-xl font-bold">Umsatzsteuer</h2>
           <p>Gemäß § 19 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer berechnet und daher auch nicht ausgewiesen.</p></section>
+        <section><h2 className="text-xl font-bold">Datenschutz-Aufsichtsbehörde</h2><p>Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen (LDI NRW), Kavalleriestraße 2–4, 40213 Düsseldorf.</p></section>
         <section><h2 className="text-xl font-bold">Verbraucherstreitbeilegung</h2>
           <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p></section>
         <section><h2 className="text-xl font-bold">Webdesign & technische Betreuung</h2>

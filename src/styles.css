@@ -122,3 +122,11 @@
 
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+@utility pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+@utility bg-animated {
+  background-image: radial-gradient(60% 50% at 20% 20%, oklch(0.82 0.15 210 / 0.12), transparent 70%), radial-gradient(50% 50% at 80% 70%, oklch(0.68 0.19 250 / 0.12), transparent 70%);
+  background-size: 200% 200%;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+@keyframes pulse-glow { 0%,100% { box-shadow: var(--shadow-gold); } 50% { box-shadow: var(--shadow-glow-lg); } }
+@keyframes drift { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }

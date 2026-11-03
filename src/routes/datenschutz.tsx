@@ -18,7 +18,7 @@ export const Route = createFileRoute("/datenschutz")({
       <main className="mx-auto max-w-3xl space-y-6 px-4 pb-16 pt-32 leading-relaxed">
         <h1 className="text-4xl font-bold text-primary-deep">Datenschutzerklärung</h1>
         <section><h2 className="text-xl font-bold">1. Verantwortlicher</h2>
-          <p>Fleckenlos Gebäudereinigung, Inhaber Herr Zada, [Anschrift], Telefon: {PHONE}.</p></section>
+          <p>Fleckenlos Gebäudereinigung, Inhaber Herr Zada, Oskar-Schindler-Str. 09, 50769 Köln, E-Mail: info@fleckenlos.nrw, Telefon: {PHONE}.</p></section>
         <section><h2 className="text-xl font-bold">2. Kontaktformular & Chat</h2>
           <p>Wenn Sie uns über das Kontaktformular oder den Chat eine Anfrage senden, verarbeiten wir Name, E-Mail-Adresse, Telefonnummer, gewünschte Leistung und Ihre Nachricht zur Bearbeitung der Anfrage und Erstellung eines Angebots (Art. 6 Abs. 1 lit. b DSGVO). Die Daten werden auf Servern unseres Hosting-Dienstleisters gespeichert und gelöscht, sobald sie für den Zweck nicht mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten bestehen.</p></section>
         <section><h2 className="text-xl font-bold">3. Server-Logfiles</h2>
