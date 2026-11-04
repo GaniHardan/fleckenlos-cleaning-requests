@@ -38,6 +38,6 @@ export const PRIVACY = {
    * (Project Settings → General → Region) und hier eintragen, z. B. "EU (Frankfurt, eu-central-1)".
    */
   supabaseRegion: "[REGION]",
-  mailProvider: "Resend, Inc., 2261 Market Street #5039, San Francisco, CA 94114, USA",
+  mailProvider: "Resend, Inc. (USA)",
   lastUpdated: "04.11.2026",
 } as const;

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import {
   Building2, HardHat, AppWindow, Stethoscope, Umbrella, Star, ArrowRight,
-  Send, ScanSearch, Sparkles, ChevronLeft, ChevronRight, BadgeCheck, User, Mail, X, ZoomIn, ShieldCheck, Clock, MapPin,
+  Send, ScanSearch, Sparkles, ChevronLeft, ChevronRight, User, ExternalLink, Mail, X, ZoomIn, ShieldCheck, Clock, MapPin,
 } from "lucide-react";
 import heroA from "@/assets/real-5.png.asset.json";
 import officeA from "@/assets/real-4.png.asset.json";
@@ -13,7 +13,8 @@ import windowA from "@/assets/real-2.png.asset.json";
 import sixA from "@/assets/real-6.png.asset.json";
 import sevenA from "@/assets/real-7.png.asset.json";
 const hero = heroA.url, office = officeA.url, team = teamA.url, room = roomA.url, heroLight = windowA.url;
-import { Header, Footer, EMAIL_HREF, ADDRESS } from "@/components/site/Chrome";
+import { Header, Footer } from "@/components/site/Chrome";
+import { ADDRESS, COMPANY, EMAIL_HREF } from "@/config/company";
 import { Wizard } from "@/components/site/Wizard";
 import { ChatBot } from "@/components/site/ChatBot";
 
@@ -40,7 +41,7 @@ const REVIEWS = [
   ["Princess Anna", "Sofort-Termin", "Heute angerufen und sofort einen Termin erhalten. Alles lief reibungslos, preislich super tragbar!"],
 ] as const;
 
-const KEYWORDS = ["Pünktlich", "Gründlich", "Zertifiziert", "Köln", "Festpreise", "Kurzfristig", "Diskret", "Versichert"];
+const KEYWORDS = ["Pünktlich", "Gründlich", "Köln", "Festpreise", "Kurzfristig", "Diskret"];
 
 function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
   return (
@@ -212,11 +213,11 @@ function Index() {
         <section id="bewertungen" className="mx-auto max-w-6xl px-4 py-28">
           <div className="grid items-center gap-12 lg:grid-cols-5">
             <div className="lg:col-span-2">
-              <Head k="Live Trust-Center" t={<>5.0 von 5.<br /><span className="text-gradient">72+ Stimmen.</span></>} />
+              <Head k="Live Trust-Center" t={<>{COMPANY.googleRating} von 5.<br /><span className="text-gradient">{COMPANY.googleReviewCount} Stimmen.</span></>} />
               <Reveal>
                 <div className="glass inline-flex items-center gap-4 rounded-2xl p-5">
                   <span className="font-display text-5xl font-extrabold">5.0</span>
-                  <div><Stars c="h-5 w-5" /><p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><BadgeCheck className="h-4 w-4 text-primary" /> Verifiziert auf Google</p></div>
+                  <div><Stars c="h-5 w-5" /><a href={COMPANY.googleReviewsUrl} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary"><ExternalLink className="h-4 w-4 text-primary" /> Alle Bewertungen auf Google ansehen</a></div>
                 </div>
               </Reveal>
             </div>
@@ -226,7 +227,7 @@ function Index() {
                   <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
                   <AnimatePresence mode="wait">
                     <motion.figure key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.45 }} className="relative">
-                      <div className="flex items-center justify-between"><Stars c="h-5 w-5" /><span className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs text-muted-foreground"><BadgeCheck className="h-3.5 w-3.5 text-primary" /> Google-Rezension</span></div>
+                      <div className="flex items-center justify-between"><Stars c="h-5 w-5" /><a href={COMPANY.googleReviewsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs text-muted-foreground hover:text-primary"><ExternalLink className="h-3.5 w-3.5 text-primary" /> Alle Bewertungen auf Google ansehen</a></div>
                       <blockquote className="mt-6 font-display text-2xl font-medium leading-snug sm:text-3xl">„{r[2]}“</blockquote>
                       <figcaption className="mt-8 flex items-center gap-3">
                         <span className="grid h-12 w-12 place-items-center rounded-full bg-gradient-primary font-bold text-primary-foreground">{r[0].charAt(0)}</span>
@@ -241,6 +242,7 @@ function Index() {
                 <button aria-label="Nächste Bewertung" onClick={() => setI((i + 1) % REVIEWS.length)} className="glass lift grid h-11 w-11 place-items-center rounded-full"><ChevronRight /></button>
                 <div className="ml-2 flex gap-1.5">{REVIEWS.map((_, n) => <button key={n} aria-label={`Bewertung ${n + 1}`} onClick={() => setI(n)} className={`h-1.5 rounded-full transition-all ${n === i ? "w-8 bg-primary" : "w-3 bg-muted"}`} />)}</div>
               </div>
+              <p className="mt-4 text-xs text-muted-foreground">Auszug aus unseren Google-Bewertungen. Die Bewertungen werden von uns nicht auf Echtheit geprüft.</p>
             </div>
           </div>
         </section>

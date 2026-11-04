@@ -3,11 +3,7 @@ import { Mail, MapPin, Menu, X } from "lucide-react";
 import { useState } from "react";
 import logoAsset from "@/assets/fleckenlos-logo-circle.png.asset.json";
 
-export const PHONE = "0221 65079295";
-export const PHONE_HREF = "tel:+4922165079295";
-export const EMAIL = "info@fleckenlos.nrw";
-export const EMAIL_HREF = "mailto:info@fleckenlos.nrw";
-export const ADDRESS = "Oskar-Schindler-Str. 09, 50769 Köln";
+import { ADDRESS, AGENCY, COMPANY, EMAIL_HREF } from "@/config/company";
 
 const NAV = [
   ["Home", "#top"],
@@ -32,7 +28,7 @@ export function Header({ home = true }: { home?: boolean }) {
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3">
       <div className="mx-auto mb-2 hidden max-w-6xl items-center justify-end gap-6 px-4 text-xs text-muted-foreground lg:flex">
         <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-primary" />{ADDRESS}</span>
-        <a href={EMAIL_HREF} className="flex items-center gap-1.5 hover:text-primary"><Mail className="h-3.5 w-3.5 text-primary" />{EMAIL}</a>
+        <a href={EMAIL_HREF} className="flex items-center gap-1.5 hover:text-primary"><Mail className="h-3.5 w-3.5 text-primary" />{COMPANY.email}</a>
       </div>
       <div className="glass mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-4 py-2.5">
         <Link to="/" aria-label="Fleckenlos Startseite"><Logo /></Link>
@@ -62,11 +58,11 @@ export function Footer() {
         </div>
         <div className="space-y-2 text-sm">
           <h3 className="mb-3 font-bold">Kontakt</h3>
-          <p>Fleckenlos Gebäudereinigung</p>
+          <p>{COMPANY.name}</p>
           <p className="text-muted-foreground">{ADDRESS}</p>
-          <p>E-Mail: <a href={EMAIL_HREF} className="text-primary hover:underline">{EMAIL}</a></p>
-          <p>Tel: <a href={PHONE_HREF} className="text-primary hover:underline">{PHONE}</a></p>
-          <p className="text-muted-foreground">Einsatzgebiet: Köln & Umgebung (Rheinland)</p>
+          <p>E-Mail: <a href={EMAIL_HREF} className="text-primary hover:underline">{COMPANY.email}</a></p>
+          <p>Tel: <a href={COMPANY.phoneHref} className="text-primary hover:underline">{COMPANY.phone}</a></p>
+          <p className="text-muted-foreground">Einsatzgebiet: {COMPANY.serviceArea}</p>
         </div>
         <div className="space-y-2 text-sm">
           <h3 className="mb-3 font-bold">Rechtliches</h3>
@@ -77,8 +73,8 @@ export function Footer() {
       </div>
       <div className="border-t">
         <div className="mx-auto flex max-w-6xl flex-col justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} Fleckenlos Gebäudereinigung</p>
-          <p>Webdesign & Digitalisierung von <span className="text-foreground">HARDAN Industries</span> (Rankestraße 18, 45144 Essen).</p>
+          <p>© {new Date().getFullYear()} {COMPANY.name}</p>
+          <p>Webdesign & Digitalisierung von <span className="text-foreground">{AGENCY.name}</span> ({AGENCY.address}).</p>
         </div>
       </div>
     </footer>
