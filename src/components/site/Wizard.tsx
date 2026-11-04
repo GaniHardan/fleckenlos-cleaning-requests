@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Building2, Stethoscope, HardHat, Umbrella, CheckCircle2, Loader2, ArrowLeft, ArrowRight, X } from "lucide-react";
+import { Building2, Stethoscope, HardHat, Umbrella, CheckCircle2, Loader2, ArrowLeft, ArrowRight, X, MessageCircle, Mail } from "lucide-react";
 import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 import { sendQuoteRequest } from "@/lib/leads.functions";
 import { playClick, playSuccess } from "@/lib/sound";
+import { EMAIL } from "@/components/site/Chrome";
+
+const WHATSAPP_NUMBER = "4922165079295";
 
 const TYPES = [
   { v: "Büro", s: "Büroreinigung", icon: Building2 },
