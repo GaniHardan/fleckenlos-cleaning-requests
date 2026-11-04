@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Building2, Stethoscope, HardHat, Umbrella, CheckCircle2, Loader2, ArrowLeft, ArrowRight, X } from "lucide-react";
+import { Building2, Stethoscope, HardHat, Umbrella, CheckCircle2, Loader2, ArrowLeft, ArrowRight, X, MessageCircle, Mail } from "lucide-react";
 import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 import { sendQuoteRequest } from "@/lib/leads.functions";
 import { playClick, playSuccess } from "@/lib/sound";
+import { EMAIL } from "@/components/site/Chrome";
+
+const WHATSAPP_NUMBER = "4922165079295";
 
 const TYPES = [
   { v: "Büro", s: "Büroreinigung", icon: Building2 },
@@ -31,7 +34,8 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
   const [freq, setFreq] = useState<string>("Wöchentlich");
   const [c, setC] = useState({ name: "", email: "", phone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [state, setState] = useState<"idle" | "sending" | "done">("idle");
+  const [message, setMessage] = useState("");
   const go = (n: number) => { playClick(); setStep(n); };
 
   async function send() {
@@ -44,12 +48,26 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
     }
     setErrors({});
     setState("sending");
-    try {
-      await send$({ data: { ...p.data, objektart: type?.v ?? "–", service: type?.s, flaeche: qm, haeufigkeit: freq } });
-      playSuccess();
-      setState("done");
-    } catch { setState("error"); }
+    const msg = [
+      "Neue Anfrage über die Website von Fleckenlos Gebäudereinigung",
+      "",
+      `Name: ${p.data.name}`,
+      `E-Mail: ${p.data.email}`,
+      `Telefon: ${p.data.phone}`,
+      `Objektart: ${type?.v ?? "–"}`,
+      `Leistung: ${type?.s ?? "–"}`,
+      `Fläche: ca. ${qm} qm`,
+      `Häufigkeit: ${freq}`,
+    ].join("\n");
+    // Best-effort: Lead zusätzlich in der Datenbank sichern – die Anzeige hängt nicht davon ab.
+    try { await send$({ data: { ...p.data, objektart: type?.v ?? "–", service: type?.s, flaeche: qm, haeufigkeit: freq } }); } catch { /* Nachricht wird trotzdem angezeigt */ }
+    setMessage(msg);
+    playSuccess();
+    setState("done");
   }
+
+  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  const mailHref = `mailto:${EMAIL}?subject=${encodeURIComponent(`Anfrage Gebäudereinigung – ${c.name}`)}&body=${encodeURIComponent(message)}`;
 
   return (
     <div className="glass relative rounded-3xl p-6 shadow-card sm:p-8">
@@ -63,12 +81,22 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
       <AnimatePresence mode="wait">
         <motion.div key={state === "done" ? "done" : step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.3 }}>
           {state === "done" ? (
-            <div className="flex flex-col items-center gap-4 py-8 text-center" role="status">
+            <div className="flex flex-col items-center gap-4 py-4 text-center" role="status">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 14 }}>
-                <CheckCircle2 className="h-16 w-16 text-primary" />
+                <CheckCircle2 className="h-14 w-14 text-primary" />
               </motion.div>
-              <h3 className="text-2xl font-bold">Anfrage erfolgreich gesendet!</h3>
-              <p className="max-w-sm text-muted-foreground">Vielen Dank, {c.name}. Wir melden uns innerhalb von 24 Stunden persönlich mit Ihrem Angebot.</p>
+              <h3 className="text-2xl font-bold">Ihre Anfrage ist fertig!</h3>
+              <p className="max-w-sm text-sm text-muted-foreground">Wählen Sie, wie Sie Ihre Anfrage senden möchten – der Text ist bereits vorbereitet:</p>
+              <pre className="max-h-56 w-full overflow-auto whitespace-pre-wrap rounded-2xl border border-input bg-glass p-4 text-left text-sm">{message}</pre>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="btn-glow flex flex-1 items-center justify-center gap-2 rounded-full px-6 py-3 font-bold">
+                  <MessageCircle className="h-5 w-5" /> Per WhatsApp senden
+                </a>
+                <a href={mailHref} className="lift flex flex-1 items-center justify-center gap-2 rounded-full border border-input bg-glass px-6 py-3 font-bold">
+                  <Mail className="h-5 w-5 text-primary" /> Per E-Mail senden
+                </a>
+              </div>
+              <p className="text-xs text-muted-foreground">WhatsApp und E-Mail öffnen sich mit dem fertigen Text – Sie müssen nur noch auf „Senden“ drücken.</p>
             </div>
           ) : step === 0 ? (
             <>
@@ -108,7 +136,6 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
                   </label>
                 ))}
                 <p className="text-xs text-muted-foreground">Mit dem Absenden stimmen Sie unserer <a href="/datenschutz" className="underline">Datenschutzerklärung</a> zu.</p>
-                {state === "error" && <p className="text-sm text-destructive">Senden fehlgeschlagen. Bitte erneut versuchen oder an info@fleckenlos.nrw schreiben.</p>}
               </div>
             </>
           )}
@@ -118,7 +145,7 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
         <div className="mt-8 flex items-center justify-between">
           <button disabled={step === 0} onClick={() => go(step - 1)} className="flex items-center gap-1 text-sm font-semibold text-muted-foreground disabled:opacity-0"><ArrowLeft className="h-4 w-4" /> Zurück</button>
           {step === 1 && <button onClick={() => go(2)} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold">Weiter <ArrowRight className="h-4 w-4" /></button>}
-          {step === 2 && <button onClick={send} disabled={state === "sending"} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70">{state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Anfrage verbindlich abschicken</button>}
+          {step === 2 && <button onClick={send} disabled={state === "sending"} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70">{state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Nachricht erstellen</button>}
         </div>
       )}
     </div>
