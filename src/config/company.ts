@@ -14,6 +14,8 @@ export const COMPANY = {
   phone: "0221 71732304",
   phoneHref: "tel:+4922171732304",
   email: "info@fleckenlos.nrw",
+  /** WhatsApp-Nummer für den Wizard (international, nur Ziffern). Aus dem Lovable-Commit 67c3bdb übernommen. */
+  whatsapp: "4922165079295",
   serviceArea: "Köln & Umgebung (Rheinland)",
   /** Google-Unternehmensprofil. */
   googleReviewsUrl: "https://share.google/xsHJpRMYV3WcWPGLR",

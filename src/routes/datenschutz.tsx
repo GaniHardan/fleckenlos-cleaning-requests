@@ -137,6 +137,14 @@ function Datenschutz() {
               ],
             ]}
           />
+          <p className="text-sm text-muted-foreground">
+            Nach dem Ausfüllen des Formulars können Sie die vorbereitete Anfrage zusätzlich per
+            WhatsApp oder E-Mail an uns senden. Wählen Sie WhatsApp, öffnet sich die App bzw.
+            WhatsApp Web (Anbieter: WhatsApp Ireland Limited, Meta-Konzern) mit dem fertigen Text.
+            Daten werden erst übertragen, wenn Sie dort auf „Senden“ tippen; dafür gilt die
+            Datenschutzerklärung von WhatsApp. Eine Übermittlung in die USA ist dabei möglich (EU-US
+            Data Privacy Framework).
+          </p>
         </S>
 
         <S n={5} t="Datenbank">

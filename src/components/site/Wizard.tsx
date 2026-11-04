@@ -10,12 +10,14 @@ import {
   ArrowLeft,
   ArrowRight,
   X,
+  MessageCircle,
+  Mail,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { sendQuoteRequest } from "@/lib/leads.functions";
 import {
   HAEUFIGKEITEN,
-  RATE_LIMIT_MESSAGE,
+  SERVICE_FOR_OBJEKTART,
   quoteContactSchema,
   type Haeufigkeit,
   type Objektart,
@@ -42,10 +44,10 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
   const [freq, setFreq] = useState<Haeufigkeit>("Wöchentlich");
   const [website, setWebsite] = useState("");
   const openedAt = useRef(Date.now());
-  const [errorMsg, setErrorMsg] = useState("");
   const [c, setC] = useState({ name: "", email: "", phone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [state, setState] = useState<"idle" | "sending" | "done">("idle");
+  const [message, setMessage] = useState("");
   const go = (n: number) => {
     playClick();
     setStep(n);
@@ -59,9 +61,21 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
       p.error.issues.forEach((i) => (e[String(i.path[0])] = i.message));
       return setErrors(e);
     }
+    if (!type) return go(0);
     setErrors({});
     setState("sending");
-    if (!type) return go(0);
+    const msg = [
+      "Neue Anfrage über die Website von Fleckenlos Gebäudereinigung",
+      "",
+      `Name: ${p.data.name}`,
+      `E-Mail: ${p.data.email}`,
+      `Telefon: ${p.data.phone}`,
+      `Objektart: ${type.v}`,
+      `Leistung: ${SERVICE_FOR_OBJEKTART[type.v]}`,
+      `Fläche: ca. ${qm} qm`,
+      `Häufigkeit: ${freq}`,
+    ].join("\n");
+    // Best-effort: Lead zusätzlich in der Datenbank sichern – die Anzeige hängt nicht davon ab.
     try {
       await send$({
         data: {
@@ -73,13 +87,16 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
           elapsedMs: Date.now() - openedAt.current,
         },
       });
-      playSuccess();
-      setState("done");
-    } catch (e) {
-      setErrorMsg(e instanceof Error && e.message === RATE_LIMIT_MESSAGE ? RATE_LIMIT_MESSAGE : "");
-      setState("error");
+    } catch {
+      /* Nachricht wird trotzdem angezeigt */
     }
+    setMessage(msg);
+    playSuccess();
+    setState("done");
   }
+
+  const whatsappHref = `https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`;
+  const mailHref = `mailto:${COMPANY.email}?subject=${encodeURIComponent(`Anfrage Gebäudereinigung – ${c.name}`)}&body=${encodeURIComponent(message)}`;
 
   return (
     <div className="glass relative rounded-3xl p-6 shadow-card sm:p-8">
@@ -116,18 +133,40 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
           transition={{ duration: 0.3 }}
         >
           {state === "done" ? (
-            <div className="flex flex-col items-center gap-4 py-8 text-center" role="status">
+            <div className="flex flex-col items-center gap-4 py-4 text-center" role="status">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 260, damping: 14 }}
               >
-                <CheckCircle2 className="h-16 w-16 text-primary" />
+                <CheckCircle2 className="h-14 w-14 text-primary" />
               </motion.div>
-              <h3 className="text-2xl font-bold">Anfrage erfolgreich gesendet!</h3>
-              <p className="max-w-sm text-muted-foreground">
-                Vielen Dank, {c.name}. Wir melden uns innerhalb von 24 Stunden persönlich mit Ihrem
-                Angebot.
+              <h3 className="text-2xl font-bold">Ihre Anfrage ist fertig!</h3>
+              <p className="max-w-sm text-sm text-muted-foreground">
+                Wählen Sie, wie Sie Ihre Anfrage senden möchten – der Text ist bereits vorbereitet:
+              </p>
+              <pre className="max-h-56 w-full overflow-auto whitespace-pre-wrap rounded-2xl border border-input bg-glass p-4 text-left text-sm">
+                {message}
+              </pre>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-glow flex flex-1 items-center justify-center gap-2 rounded-full px-6 py-3 font-bold"
+                >
+                  <MessageCircle className="h-5 w-5" /> Per WhatsApp senden
+                </a>
+                <a
+                  href={mailHref}
+                  className="lift flex flex-1 items-center justify-center gap-2 rounded-full border border-input bg-glass px-6 py-3 font-bold"
+                >
+                  <Mail className="h-5 w-5 text-primary" /> Per E-Mail senden
+                </a>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                WhatsApp und E-Mail öffnen sich mit dem fertigen Text – Sie müssen nur noch auf
+                „Senden“ drücken.
               </p>
             </div>
           ) : step === 0 ? (
@@ -222,12 +261,6 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
                   </a>{" "}
                   zu.
                 </p>
-                {state === "error" && (
-                  <p className="text-sm text-destructive" role="alert">
-                    {errorMsg ||
-                      `Senden fehlgeschlagen. Bitte erneut versuchen, an ${COMPANY.email} schreiben oder ${COMPANY.phone} anrufen.`}
-                  </p>
-                )}
               </div>
             </>
           )}
@@ -256,8 +289,8 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
               disabled={state === "sending"}
               className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70"
             >
-              {state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Anfrage
-              unverbindlich abschicken
+              {state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Nachricht
+              erstellen
             </button>
           )}
         </div>
