@@ -39,7 +39,10 @@ export const sendQuoteRequest = createServerFn({ method: "POST" })
     if (error) console.error("lead insert failed", error);
 
     // 2) Email to the owner via FormSubmit
+    let mailed = false;
+    try {
     const res = await fetch(`https://formsubmit.co/ajax/${LEAD_INBOX}`, {
+      signal: AbortSignal.timeout(6000),
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,8 +63,10 @@ export const sendQuoteRequest = createServerFn({ method: "POST" })
         Häufigkeit: data.haeufigkeit,
       }),
     });
-    const body = await res.text();
+    const body = await Promise.race([res.text(), new Promise<string>((r) => setTimeout(() => r("(timeout)"), 3000))]);
     console.log(`formsubmit [${res.status}]: ${body}`);
-    if (!res.ok && error) throw new Error("Anfrage konnte nicht gesendet werden");
+    mailed = res.ok;
+    } catch (e) { console.error("formsubmit failed", e); }
+    if (!mailed && error) throw new Error("Anfrage konnte nicht gesendet werden");
     return { ok: true };
   });
