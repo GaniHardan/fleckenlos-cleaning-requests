@@ -81,12 +81,22 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
       <AnimatePresence mode="wait">
         <motion.div key={state === "done" ? "done" : step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.3 }}>
           {state === "done" ? (
-            <div className="flex flex-col items-center gap-4 py-8 text-center" role="status">
+            <div className="flex flex-col items-center gap-4 py-4 text-center" role="status">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 14 }}>
-                <CheckCircle2 className="h-16 w-16 text-primary" />
+                <CheckCircle2 className="h-14 w-14 text-primary" />
               </motion.div>
-              <h3 className="text-2xl font-bold">Anfrage erfolgreich gesendet!</h3>
-              <p className="max-w-sm text-muted-foreground">Vielen Dank, {c.name}. Wir melden uns innerhalb von 24 Stunden persönlich mit Ihrem Angebot.</p>
+              <h3 className="text-2xl font-bold">Ihre Anfrage ist fertig!</h3>
+              <p className="max-w-sm text-sm text-muted-foreground">Wählen Sie, wie Sie Ihre Anfrage senden möchten – der Text ist bereits vorbereitet:</p>
+              <pre className="max-h-56 w-full overflow-auto whitespace-pre-wrap rounded-2xl border border-input bg-glass p-4 text-left text-sm">{message}</pre>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="btn-glow flex flex-1 items-center justify-center gap-2 rounded-full px-6 py-3 font-bold">
+                  <MessageCircle className="h-5 w-5" /> Per WhatsApp senden
+                </a>
+                <a href={mailHref} className="lift flex flex-1 items-center justify-center gap-2 rounded-full border border-input bg-glass px-6 py-3 font-bold">
+                  <Mail className="h-5 w-5 text-primary" /> Per E-Mail senden
+                </a>
+              </div>
+              <p className="text-xs text-muted-foreground">WhatsApp und E-Mail öffnen sich mit dem fertigen Text – Sie müssen nur noch auf „Senden“ drücken.</p>
             </div>
           ) : step === 0 ? (
             <>
