@@ -16,7 +16,8 @@ export const COMPANY = {
   email: "info@fleckenlos.nrw",
   serviceArea: "Köln & Umgebung (Rheinland)",
   /** Google-Unternehmensprofil. TODO: durch den direkten Profil-Link ersetzen. */
-  googleReviewsUrl: "https://www.google.com/maps/search/?api=1&query=Fleckenlos+Geb%C3%A4udereinigung+K%C3%B6ln",
+  googleReviewsUrl:
+    "https://www.google.com/maps/search/?api=1&query=Fleckenlos+Geb%C3%A4udereinigung+K%C3%B6ln",
   /** Anzahl laut Google-Widget auf fleckenlos-gebaeudereinigung.de (Stand 04.11.2026). */
   googleReviewCount: 64,
   googleRating: "5.0",

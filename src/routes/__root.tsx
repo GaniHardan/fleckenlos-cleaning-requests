@@ -49,7 +49,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
           Die Seite konnte nicht geladen werden
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Bei uns ist etwas schiefgelaufen. Bitte laden Sie die Seite neu oder kehren Sie zur Startseite zurück.
+          Bei uns ist etwas schiefgelaufen. Bitte laden Sie die Seite neu oder kehren Sie zur
+          Startseite zurück.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button

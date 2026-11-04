@@ -7,7 +7,12 @@ import { z } from "zod";
  */
 
 export const OBJEKTARTEN = ["Büro", "Praxis", "Baustelle", "Glas / Terrassendach"] as const;
-export const HAEUFIGKEITEN = ["Einmalig", "Wöchentlich", "Mehrmals pro Woche", "Monatlich"] as const;
+export const HAEUFIGKEITEN = [
+  "Einmalig",
+  "Wöchentlich",
+  "Mehrmals pro Woche",
+  "Monatlich",
+] as const;
 export const SERVICES = [
   "Büroreinigung",
   "Bauendreinigung",
@@ -39,14 +44,17 @@ export const emailSchema = z.string().trim().email("Ungültige E-Mail-Adresse").
 export const phoneSchema = z
   .string()
   .trim()
-  .regex(PHONE_RE, "Bitte gültige Telefonnummer angeben (6–20 Zeichen: Ziffern, Leerzeichen, + - / ( ))")
+  .regex(
+    PHONE_RE,
+    "Bitte gültige Telefonnummer angeben (6–20 Zeichen: Ziffern, Leerzeichen, + - / ( ))",
+  )
   // at least a handful of real digits, so "+ - - -" is rejected
   .refine((v) => (v.match(/\d/g)?.length ?? 0) >= 5, "Bitte gültige Telefonnummer angeben");
 
 /** Anti-spam fields every lead carries. `website` is an invisible honeypot. */
 const antiSpam = {
   website: z.string().max(200).optional().default(""),
-  elapsedMs: z.number().int().min(0).max(86_400_000),
+  elapsedMs: z.number().int().min(0),
 };
 
 export const quoteLeadSchema = z.object({
@@ -81,7 +89,10 @@ export const chatLeadSchema = z.object({
     .string()
     .trim()
     .max(255)
-    .refine((v) => parseContact(v) !== null, "Bitte gültige E-Mail-Adresse oder Telefonnummer angeben"),
+    .refine(
+      (v) => parseContact(v) !== null,
+      "Bitte gültige E-Mail-Adresse oder Telefonnummer angeben",
+    ),
   message: z.string().trim().max(2000).optional(),
   ...antiSpam,
 });

@@ -24,9 +24,9 @@ async function run<T>(fn: (deps: LeadDeps, mod: LeadsServer) => Promise<T>) {
 }
 
 export const sendQuoteRequest = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => quoteLeadSchema.parse(d))
+  .validator((d: unknown) => quoteLeadSchema.parse(d))
   .handler(({ data }) => run((deps, mod) => mod.processQuoteLead(data, deps)));
 
 export const submitChatLead = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => chatLeadSchema.parse(d))
+  .validator((d: unknown) => chatLeadSchema.parse(d))
   .handler(({ data }) => run((deps, mod) => mod.processChatLead(data, deps)));

@@ -71,7 +71,10 @@ export function escapeHtml(v: string): string {
     .replace(/'/g, "&#39;");
 }
 
-export async function hashIp(ip: string | undefined | null, salt: string | undefined): Promise<string | null> {
+export async function hashIp(
+  ip: string | undefined | null,
+  salt: string | undefined,
+): Promise<string | null> {
   if (!ip || !salt) return null;
   const data = new TextEncoder().encode(`${salt}:${ip}`);
   const digest = await crypto.subtle.digest("SHA-256", data);
@@ -112,7 +115,10 @@ async function storeAndMail(deps: LeadDeps, row: LeadRow, mail: LeadMail): Promi
   } catch (e) {
     // no personal data in logs – only the error itself
     console.error("lead insert failed", e instanceof Error ? e.message : e);
-    throw new LeadError("Anfrage konnte nicht gespeichert werden. Bitte erneut versuchen oder anrufen.", "store_failed");
+    throw new LeadError(
+      "Anfrage konnte nicht gespeichert werden. Bitte erneut versuchen oder anrufen.",
+      "store_failed",
+    );
   }
 
   let status: "sent" | "failed" = "sent";
@@ -125,7 +131,10 @@ async function storeAndMail(deps: LeadDeps, row: LeadRow, mail: LeadMail): Promi
   try {
     await deps.store.setMailStatus(id, status);
   } catch (e) {
-    console.error(`lead mail_status update failed (lead ${id})`, e instanceof Error ? e.message : e);
+    console.error(
+      `lead mail_status update failed (lead ${id})`,
+      e instanceof Error ? e.message : e,
+    );
   }
   // Data is stored – the customer sees success even if the mail failed.
   return { ok: true };
@@ -201,7 +210,10 @@ export async function processChatLead(data: ChatLead, deps: LeadDeps): Promise<L
 export function supabaseLeadStore(sb: SupabaseClient): LeadStore {
   return {
     async countSince(sinceIso, ipHash) {
-      let q = sb.from("leads").select("id", { count: "exact", head: true }).gte("created_at", sinceIso);
+      let q = sb
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", sinceIso);
       if (ipHash) q = q.eq("ip_hash", ipHash);
       const { count, error } = await q;
       if (error) throw new Error(error.message);
@@ -220,7 +232,11 @@ export function supabaseLeadStore(sb: SupabaseClient): LeadStore {
 }
 
 /** Resend (https://resend.com). Use a sending domain created in the EU region (eu-west-1). */
-export function resendMailer(env: { apiKey: string | undefined; to: string | undefined; from: string | undefined }): Mailer {
+export function resendMailer(env: {
+  apiKey: string | undefined;
+  to: string | undefined;
+  from: string | undefined;
+}): Mailer {
   return async (mail) => {
     if (!env.apiKey || !env.to || !env.from) {
       throw new Error("mail not configured (RESEND_API_KEY / LEAD_INBOX / LEAD_FROM missing)");
