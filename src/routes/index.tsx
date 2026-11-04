@@ -272,7 +272,7 @@ function Index() {
 
 const GALLERY = [
   { src: hero, cat: "Fuhrpark & Einsatz", alt: "Herr Zada vor dem Fleckenlos-Firmenwagen" },
-  { src: sixA.url, cat: "Fuhrpark & Einsatz", alt: "Fleckenlos im Einsatz vor Ort" },
+  { src: sixA.url, cat: "Vorher / Nachher", alt: "Gereinigtes Terrassendach" },
   { src: team, cat: "Team bei der Arbeit", alt: "Team bei der Arbeit mit Hebebühne" },
   { src: heroLight, cat: "Team bei der Arbeit", alt: "Präzise Fensterreinigung" },
   { src: office, cat: "Vorher / Nachher", alt: "Vorher-Nachher Großraumreinigung" },
