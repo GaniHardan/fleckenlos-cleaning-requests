@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MessageCircle, Send, X } from "lucide-react";
-import { CONFIRMATION, SERVICES, submitLead } from "@/lib/leads";
+import { useServerFn } from "@tanstack/react-start";
+import { submitChatLead } from "@/lib/leads.functions";
+import { CONFIRMATION, RATE_LIMIT_MESSAGE, SERVICES, parseContact, type Service } from "@/lib/lead-schema";
+import { COMPANY } from "@/config/company";
+import { Honeypot } from "./Honeypot";
 
 type Step = "service" | "name" | "phone" | "message" | "done";
 const PROMPTS: Record<Step, string> = {
@@ -10,36 +14,55 @@ const PROMPTS: Record<Step, string> = {
   message: "Kurz zum Objekt (Größe in qm, Wunschtermin)? Oder einfach „fertig“.",
   done: CONFIRMATION,
 };
+export const INVALID_CONTACT =
+  "Das sieht leider nicht nach einer gültigen E-Mail-Adresse oder Telefonnummer aus. Könnten Sie sie bitte noch einmal eingeben?";
+
+/** Free-text answer → known service; unknown answers become "Sonstiges". */
+function toService(v: string): { service: Service; note?: string } {
+  const hit = SERVICES.find((s) => s.toLowerCase() === v.toLowerCase());
+  return hit ? { service: hit } : { service: "Sonstiges", note: v };
+}
 
 export function ChatBot() {
+  const send$ = useServerFn(submitChatLead);
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("service");
   const [log, setLog] = useState<{ me: boolean; t: string }[]>([{ me: false, t: PROMPTS.service }]);
-  const [data, setData] = useState({ service: "", name: "", contact: "" });
+  const [data, setData] = useState<{ service: Service; note?: string; name: string; contact: string }>({ service: "Sonstiges", name: "", contact: "" });
   const [input, setInput] = useState("");
+  const [website, setWebsite] = useState("");
+  const [busy, setBusy] = useState(false);
+  const openedAt = useRef(0);
+
+  function toggle() {
+    if (!open && openedAt.current === 0) openedAt.current = Date.now();
+    setOpen(!open);
+  }
 
   async function answer(val: string) {
     const v = val.trim().slice(0, 500);
-    if (!v) return;
+    if (!v || busy) return;
     const next = [...log, { me: true, t: v }];
     setInput("");
     let ns: Step = step;
-    if (step === "service") { setData({ ...data, service: v }); ns = "name"; }
+    if (step === "service") { setData({ ...data, ...toService(v.slice(0, 60)) }); ns = "name"; }
     else if (step === "name") { setData({ ...data, name: v.slice(0, 100) }); ns = "phone"; }
-    else if (step === "phone") { setData({ ...data, contact: v.slice(0, 255) }); ns = "message"; }
+    else if (step === "phone") {
+      if (!parseContact(v)) { setLog([...next, { me: false, t: INVALID_CONTACT }]); return; }
+      setData({ ...data, contact: v.slice(0, 255) }); ns = "message";
+    }
     else if (step === "message") {
-      const isMail = data.contact.includes("@");
+      const text = v.toLowerCase() === "fertig" ? "" : v;
+      const message = [data.note && `Anliegen: ${data.note}`, text].filter(Boolean).join("\n").slice(0, 2000);
+      setBusy(true);
       try {
-        await submitLead({
-          name: data.name, service: data.service.slice(0, 60),
-          email: isMail ? data.contact : undefined, phone: isMail ? undefined : data.contact.slice(0, 40),
-          message: v.toLowerCase() === "fertig" ? undefined : v,
-        }, "chatbot");
+        await send$({ data: { name: data.name, service: data.service, contact: data.contact, message: message || undefined, website, elapsedMs: Date.now() - openedAt.current } });
         ns = "done";
-      } catch {
-        setLog([...next, { me: false, t: "Leider ist ein Fehler aufgetreten. Bitte rufen Sie uns an: 0221 65079264" }]);
+      } catch (e) {
+        const t = e instanceof Error && e.message === RATE_LIMIT_MESSAGE ? RATE_LIMIT_MESSAGE : `Leider ist ein Fehler aufgetreten. Bitte rufen Sie uns an: ${COMPANY.phone}`;
+        setLog([...next, { me: false, t }]);
         return;
-      }
+      } finally { setBusy(false); }
     }
     setStep(ns);
     setLog([...next, { me: false, t: PROMPTS[ns] }]);
@@ -47,7 +70,7 @@ export function ChatBot() {
 
   return (
     <>
-      <button onClick={() => setOpen(!open)} aria-label="Chat öffnen"
+      <button onClick={toggle} aria-label="Chat öffnen"
         className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-gradient-primary text-primary-foreground shadow-card transition hover:scale-105">
         {open ? <X /> : <MessageCircle />}
       </button>
@@ -70,9 +93,13 @@ export function ChatBot() {
             )}
           </div>
           {step !== "done" && (
-            <form onSubmit={(e) => { e.preventDefault(); answer(input); }} className="flex gap-2 border-t p-3">
-              <input value={input} onChange={(e) => setInput(e.target.value)} className="flex-1 rounded-full border border-input px-4 text-sm outline-none focus:border-primary" placeholder="Ihre Antwort…" />
-              <button className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground" aria-label="Senden"><Send className="h-4 w-4" /></button>
+            <form onSubmit={(e) => { e.preventDefault(); answer(input); }} className="relative border-t p-3">
+              <p className="mb-2 text-[11px] text-muted-foreground">Mit dem Absenden stimmen Sie unserer <a href="/datenschutz" className="underline">Datenschutzerklärung</a> zu.</p>
+              <Honeypot value={website} onChange={setWebsite} />
+              <div className="flex gap-2">
+                <input value={input} onChange={(e) => setInput(e.target.value)} className="flex-1 rounded-full border border-input px-4 text-sm outline-none focus:border-primary" placeholder="Ihre Antwort…" aria-label="Ihre Antwort" />
+                <button disabled={busy} className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-60" aria-label="Senden"><Send className="h-4 w-4" /></button>
+              </div>
             </form>
           )}
         </div>

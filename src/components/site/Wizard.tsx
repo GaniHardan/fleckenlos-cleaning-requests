@@ -1,25 +1,19 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Building2, Stethoscope, HardHat, Umbrella, CheckCircle2, Loader2, ArrowLeft, ArrowRight, X } from "lucide-react";
-import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 import { sendQuoteRequest } from "@/lib/leads.functions";
+import { HAEUFIGKEITEN, RATE_LIMIT_MESSAGE, quoteContactSchema, type Haeufigkeit, type Objektart } from "@/lib/lead-schema";
+import { COMPANY } from "@/config/company";
+import { Honeypot } from "./Honeypot";
 import { playClick, playSuccess } from "@/lib/sound";
 
-const TYPES = [
-  { v: "Büro", s: "Büroreinigung", icon: Building2 },
-  { v: "Praxis", s: "Sonstiges", icon: Stethoscope },
-  { v: "Baustelle", s: "Bauendreinigung", icon: HardHat },
-  { v: "Glas / Terrassendach", s: "Terrassendach", icon: Umbrella },
-] as const;
-
-const FREQ = ["Einmalig", "Wöchentlich", "Mehrmals pro Woche", "Monatlich"] as const;
-
-const contactSchema = z.object({
-  name: z.string().trim().min(1, "Bitte Namen angeben").max(100),
-  email: z.string().trim().email("Ungültige E-Mail-Adresse").max(255),
-  phone: z.string().trim().min(5, "Bitte Telefonnummer angeben").max(40),
-});
+const TYPES: readonly { v: Objektart; icon: typeof Building2 }[] = [
+  { v: "Büro", icon: Building2 },
+  { v: "Praxis", icon: Stethoscope },
+  { v: "Baustelle", icon: HardHat },
+  { v: "Glas / Terrassendach", icon: Umbrella },
+];
 
 const field = "w-full rounded-xl border border-input bg-glass px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30";
 
@@ -28,7 +22,10 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
   const [step, setStep] = useState(0);
   const [type, setType] = useState<(typeof TYPES)[number] | null>(null);
   const [qm, setQm] = useState(250);
-  const [freq, setFreq] = useState<string>("Wöchentlich");
+  const [freq, setFreq] = useState<Haeufigkeit>("Wöchentlich");
+  const [website, setWebsite] = useState("");
+  const openedAt = useRef(Date.now());
+  const [errorMsg, setErrorMsg] = useState("");
   const [c, setC] = useState({ name: "", email: "", phone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
@@ -36,7 +33,7 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
 
   async function send() {
     playClick();
-    const p = contactSchema.safeParse(c);
+    const p = quoteContactSchema.safeParse(c);
     if (!p.success) {
       const e: Record<string, string> = {};
       p.error.issues.forEach((i) => (e[String(i.path[0])] = i.message));
@@ -44,11 +41,15 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
     }
     setErrors({});
     setState("sending");
+    if (!type) return go(0);
     try {
-      await send$({ data: { ...p.data, objektart: type?.v ?? "–", service: type?.s, flaeche: qm, haeufigkeit: freq } });
+      await send$({ data: { ...p.data, objektart: type.v, flaeche: qm, haeufigkeit: freq, website, elapsedMs: Date.now() - openedAt.current } });
       playSuccess();
       setState("done");
-    } catch { setState("error"); }
+    } catch (e) {
+      setErrorMsg(e instanceof Error && e.message === RATE_LIMIT_MESSAGE ? RATE_LIMIT_MESSAGE : "");
+      setState("error");
+    }
   }
 
   return (
@@ -91,7 +92,7 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
               <div className="mt-2 flex justify-between text-xs text-muted-foreground"><span>20 qm</span><span>5.000+ qm</span></div>
               <p className="mb-3 mt-8 text-sm font-semibold">Gewünschte Häufigkeit</p>
               <div className="grid grid-cols-2 gap-2">
-                {FREQ.map((f) => (
+                {HAEUFIGKEITEN.map((f) => (
                   <button key={f} onClick={() => { playClick(); setFreq(f); }} className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${freq === f ? "border-primary bg-primary/15 text-primary" : "bg-glass"}`}>{f}</button>
                 ))}
               </div>
@@ -107,8 +108,9 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
                     {errors[n] && <span className="mt-1 block text-xs text-destructive">{errors[n]}</span>}
                   </label>
                 ))}
+                <Honeypot value={website} onChange={setWebsite} />
                 <p className="text-xs text-muted-foreground">Mit dem Absenden stimmen Sie unserer <a href="/datenschutz" className="underline">Datenschutzerklärung</a> zu.</p>
-                {state === "error" && <p className="text-sm text-destructive">Senden fehlgeschlagen. Bitte erneut versuchen oder an info@fleckenlos.nrw schreiben.</p>}
+                {state === "error" && <p className="text-sm text-destructive" role="alert">{errorMsg || `Senden fehlgeschlagen. Bitte erneut versuchen, an ${COMPANY.email} schreiben oder ${COMPANY.phone} anrufen.`}</p>}
               </div>
             </>
           )}
@@ -118,7 +120,7 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
         <div className="mt-8 flex items-center justify-between">
           <button disabled={step === 0} onClick={() => go(step - 1)} className="flex items-center gap-1 text-sm font-semibold text-muted-foreground disabled:opacity-0"><ArrowLeft className="h-4 w-4" /> Zurück</button>
           {step === 1 && <button onClick={() => go(2)} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold">Weiter <ArrowRight className="h-4 w-4" /></button>}
-          {step === 2 && <button onClick={send} disabled={state === "sending"} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70">{state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Anfrage verbindlich abschicken</button>}
+          {step === 2 && <button onClick={send} disabled={state === "sending"} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70">{state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Anfrage unverbindlich abschicken</button>}
         </div>
       )}
     </div>

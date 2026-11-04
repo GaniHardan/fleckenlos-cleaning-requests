@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as ImpressumRouteImport } from './routes/impressum'
+import { Route as ApiCronPurgeLeadsRouteImport } from './routes/api/cron/purge-leads'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const ImpressumRoute = ImpressumRouteImport.update({
   path: '/impressum',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronPurgeLeadsRoute = ApiCronPurgeLeadsRouteImport.update({
+  id: '/api/cron/purge-leads',
+  path: '/api/cron/purge-leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
+  '/api/cron/purge-leads': typeof ApiCronPurgeLeadsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
+  '/api/cron/purge-leads': typeof ApiCronPurgeLeadsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
+  '/api/cron/purge-leads': typeof ApiCronPurgeLeadsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/datenschutz' | '/impressum'
+  fullPaths: '/' | '/datenschutz' | '/impressum' | '/api/cron/purge-leads'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/datenschutz' | '/impressum'
-  id: '__root__' | '/' | '/datenschutz' | '/impressum'
+  to: '/' | '/datenschutz' | '/impressum' | '/api/cron/purge-leads'
+  id: '__root__' | '/' | '/datenschutz' | '/impressum' | '/api/cron/purge-leads'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DatenschutzRoute: typeof DatenschutzRoute
   ImpressumRoute: typeof ImpressumRoute
+  ApiCronPurgeLeadsRoute: typeof ApiCronPurgeLeadsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImpressumRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/purge-leads': {
+      id: '/api/cron/purge-leads'
+      path: '/api/cron/purge-leads'
+      fullPath: '/api/cron/purge-leads'
+      preLoaderRoute: typeof ApiCronPurgeLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DatenschutzRoute: DatenschutzRoute,
   ImpressumRoute: ImpressumRoute,
+  ApiCronPurgeLeadsRoute: ApiCronPurgeLeadsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
