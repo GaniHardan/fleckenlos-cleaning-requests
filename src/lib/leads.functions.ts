@@ -1,72 +1,32 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
-import { z } from "zod";
+import { chatLeadSchema, quoteLeadSchema } from "./lead-schema";
 
-export const LEAD_INBOX = "info@fleckenlos.nrw";
+/** Client IP as seen by the edge. Only ever used hashed (see hashIp). */
+async function clientIp(): Promise<string | undefined> {
+  const { getRequestHeader, getRequestIP } = await import("@tanstack/react-start/server");
+  return getRequestHeader("cf-connecting-ip") ?? getRequestIP({ xForwardedFor: true }) ?? undefined;
+}
 
-const input = z.object({
-  name: z.string().trim().min(1).max(100),
-  email: z.string().trim().email().max(255),
-  phone: z.string().trim().min(5).max(40),
-  objektart: z.string().trim().max(40),
-  service: z.string().trim().max(40).optional(),
-  flaeche: z.number().int().min(1).max(100000),
-  haeufigkeit: z.string().trim().max(40),
-});
+type LeadsServer = typeof import("./leads.server");
+type LeadDeps = import("./leads.server").LeadDeps;
+
+async function run<T>(fn: (deps: LeadDeps, mod: LeadsServer) => Promise<T>) {
+  const mod = await import("./leads.server");
+  const deps = await mod.productionDeps(await clientIp());
+  try {
+    return await fn(deps, mod);
+  } catch (e) {
+    // Re-throw only the user-facing message; never leak internals.
+    if (e instanceof mod.LeadError) throw new Error(e.message);
+    console.error("lead handler failed", e instanceof Error ? e.message : e);
+    throw new Error("Anfrage konnte nicht gesendet werden. Bitte erneut versuchen oder anrufen.");
+  }
+}
 
 export const sendQuoteRequest = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => input.parse(d))
-  .handler(async ({ data }) => {
-    const message = `Objektart: ${data.objektart} · Fläche: ca. ${data.flaeche} qm · Häufigkeit: ${data.haeufigkeit}`;
+  .validator((d: unknown) => quoteLeadSchema.parse(d))
+  .handler(({ data }) => run((deps, mod) => mod.processQuoteLead(data, deps)));
 
-    // 1) Store a copy so no lead is ever lost
-    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-    const sb = createClient(process.env["SUPABASE_URL"]!, key, {
-      auth: { persistSession: false },
-      global: {
-        fetch: (i, init) => {
-          const h = new Headers(init?.headers);
-          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
-          h.set("apikey", key);
-          return fetch(i, { ...init, headers: h });
-        },
-      },
-    });
-    const { error } = await sb.from("leads").insert({
-      name: data.name, email: data.email, phone: data.phone,
-      service: data.service ?? null, message, source: "formular",
-    });
-    if (error) console.error("lead insert failed", error);
-
-    // 2) Email to the owner via FormSubmit
-    let mailed = false;
-    try {
-    const res = await fetch(`https://formsubmit.co/ajax/${LEAD_INBOX}`, {
-      signal: AbortSignal.timeout(6000),
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Origin: "https://fleckenlos-cleaning-requests.lovable.app",
-        Referer: "https://fleckenlos-cleaning-requests.lovable.app/",
-      },
-      body: JSON.stringify({
-        _subject: "Neuer Lead für Fleckenlos Gebäudereinigung",
-        _template: "table",
-        _captcha: "false",
-        _replyto: data.email,
-        Name: data.name,
-        "E-Mail": data.email,
-        Telefon: data.phone,
-        Objektart: data.objektart,
-        "Fläche (qm)": String(data.flaeche),
-        Häufigkeit: data.haeufigkeit,
-      }),
-    });
-    const body = await Promise.race([res.text(), new Promise<string>((r) => setTimeout(() => r("(timeout)"), 3000))]);
-    console.log(`formsubmit [${res.status}]: ${body}`);
-    mailed = res.ok;
-    } catch (e) { console.error("formsubmit failed", e); }
-    if (!mailed && error) throw new Error("Anfrage konnte nicht gesendet werden");
-    return { ok: true };
-  });
+export const submitChatLead = createServerFn({ method: "POST" })
+  .validator((d: unknown) => chatLeadSchema.parse(d))
+  .handler(({ data }) => run((deps, mod) => mod.processChatLead(data, deps)));
