@@ -136,7 +136,6 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
                   </label>
                 ))}
                 <p className="text-xs text-muted-foreground">Mit dem Absenden stimmen Sie unserer <a href="/datenschutz" className="underline">Datenschutzerklärung</a> zu.</p>
-                {state === "error" && <p className="text-sm text-destructive">Senden fehlgeschlagen. Bitte erneut versuchen oder an info@fleckenlos.nrw schreiben.</p>}
               </div>
             </>
           )}
@@ -146,7 +145,7 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
         <div className="mt-8 flex items-center justify-between">
           <button disabled={step === 0} onClick={() => go(step - 1)} className="flex items-center gap-1 text-sm font-semibold text-muted-foreground disabled:opacity-0"><ArrowLeft className="h-4 w-4" /> Zurück</button>
           {step === 1 && <button onClick={() => go(2)} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold">Weiter <ArrowRight className="h-4 w-4" /></button>}
-          {step === 2 && <button onClick={send} disabled={state === "sending"} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70">{state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Anfrage verbindlich abschicken</button>}
+          {step === 2 && <button onClick={send} disabled={state === "sending"} className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70">{state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Nachricht erstellen</button>}
         </div>
       )}
     </div>
