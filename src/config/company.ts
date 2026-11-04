@@ -15,9 +15,8 @@ export const COMPANY = {
   phoneHref: "tel:+4922171732304",
   email: "info@fleckenlos.nrw",
   serviceArea: "Köln & Umgebung (Rheinland)",
-  /** Google-Unternehmensprofil. TODO: durch den direkten Profil-Link ersetzen. */
-  googleReviewsUrl:
-    "https://www.google.com/maps/search/?api=1&query=Fleckenlos+Geb%C3%A4udereinigung+K%C3%B6ln",
+  /** Google-Unternehmensprofil. */
+  googleReviewsUrl: "https://share.google/xsHJpRMYV3WcWPGLR",
   /** Anzahl laut Google-Widget auf fleckenlos-gebaeudereinigung.de (Stand 04.11.2026). */
   googleReviewCount: 64,
   googleRating: "5.0",
@@ -34,11 +33,7 @@ export const AGENCY = {
 
 /** Data-protection facts shown in the privacy policy. */
 export const PRIVACY = {
-  /**
-   * TODO vor Livegang: Region im Supabase-Dashboard ablesen
-   * (Project Settings → General → Region) und hier eintragen, z. B. "EU (Frankfurt, eu-central-1)".
-   */
-  supabaseRegion: "[REGION]",
+  supabaseRegion: "EU (Irland, Dublin – eu-west-1)",
   mailProvider: "Resend, Inc. (USA)",
   lastUpdated: "04.11.2026",
 } as const;
