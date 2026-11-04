@@ -34,7 +34,8 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
   const [freq, setFreq] = useState<string>("Wöchentlich");
   const [c, setC] = useState({ name: "", email: "", phone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [state, setState] = useState<"idle" | "sending" | "done">("idle");
+  const [message, setMessage] = useState("");
   const go = (n: number) => { playClick(); setStep(n); };
 
   async function send() {
@@ -47,12 +48,26 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
     }
     setErrors({});
     setState("sending");
-    try {
-      await send$({ data: { ...p.data, objektart: type?.v ?? "–", service: type?.s, flaeche: qm, haeufigkeit: freq } });
-      playSuccess();
-      setState("done");
-    } catch { setState("error"); }
+    const msg = [
+      "Neue Anfrage über die Website von Fleckenlos Gebäudereinigung",
+      "",
+      `Name: ${p.data.name}`,
+      `E-Mail: ${p.data.email}`,
+      `Telefon: ${p.data.phone}`,
+      `Objektart: ${type?.v ?? "–"}`,
+      `Leistung: ${type?.s ?? "–"}`,
+      `Fläche: ca. ${qm} qm`,
+      `Häufigkeit: ${freq}`,
+    ].join("\n");
+    // Best-effort: Lead zusätzlich in der Datenbank sichern – die Anzeige hängt nicht davon ab.
+    try { await send$({ data: { ...p.data, objektart: type?.v ?? "–", service: type?.s, flaeche: qm, haeufigkeit: freq } }); } catch { /* Nachricht wird trotzdem angezeigt */ }
+    setMessage(msg);
+    playSuccess();
+    setState("done");
   }
+
+  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  const mailHref = `mailto:${EMAIL}?subject=${encodeURIComponent(`Anfrage Gebäudereinigung – ${c.name}`)}&body=${encodeURIComponent(message)}`;
 
   return (
     <div className="glass relative rounded-3xl p-6 shadow-card sm:p-8">
