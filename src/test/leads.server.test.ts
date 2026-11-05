@@ -38,6 +38,7 @@ const quote: QuoteLead = {
   objektart: "Praxis",
   flaeche: 120,
   haeufigkeit: "Wöchentlich",
+      nachricht: "",
   website: "",
   elapsedMs: 10_000,
 };
