@@ -45,6 +45,8 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
   const [website, setWebsite] = useState("");
   const openedAt = useRef(Date.now());
   const [c, setC] = useState({ name: "", email: "", phone: "" });
+  const [note, setNote] = useState("");
+  const [sendError, setSendError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [message, setMessage] = useState("");
@@ -74,8 +76,9 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
       `Leistung: ${SERVICE_FOR_OBJEKTART[type.v]}`,
       `Fläche: ca. ${qm} qm`,
       `Häufigkeit: ${freq}`,
+      ...(note.trim() ? [`Nachricht: ${note.trim()}`] : []),
     ].join("\n");
-    // Best-effort: Lead zusätzlich in der Datenbank sichern – die Anzeige hängt nicht davon ab.
+    setSendError("");
     try {
       await send$({
         data: {
@@ -83,12 +86,15 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
           objektart: type.v,
           flaeche: qm,
           haeufigkeit: freq,
+          nachricht: note.trim(),
           website,
           elapsedMs: Date.now() - openedAt.current,
         },
       });
-    } catch {
-      /* Nachricht wird trotzdem angezeigt */
+    } catch (e) {
+      setState("idle");
+      setSendError(e instanceof Error ? e.message : "Anfrage konnte nicht gesendet werden.");
+      return;
     }
     setMessage(msg);
     playSuccess();
@@ -141,9 +147,13 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
               >
                 <CheckCircle2 className="h-14 w-14 text-primary" />
               </motion.div>
-              <h3 className="text-2xl font-bold">Ihre Anfrage ist fertig!</h3>
+              <h3 className="text-2xl font-bold">Vielen Dank!</h3>
               <p className="max-w-sm text-sm text-muted-foreground">
-                Wählen Sie, wie Sie Ihre Anfrage senden möchten – der Text ist bereits vorbereitet:
+                Ihre Anfrage ist erfolgreich eingegangen. Herr Zada wird sich in Kürze bei Ihnen
+                melden.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Optional können Sie uns Ihre Anfrage zusätzlich per WhatsApp oder E-Mail schicken:
               </p>
               <pre className="max-h-56 w-full overflow-auto whitespace-pre-wrap rounded-2xl border border-input bg-glass p-4 text-left text-sm">
                 {message}
@@ -253,6 +263,17 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
                     )}
                   </label>
                 ))}
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-semibold">Nachricht (optional)</span>
+                  <textarea
+                    value={note}
+                    maxLength={2000}
+                    rows={3}
+                    onChange={(e) => setNote(e.target.value)}
+                    className={field}
+                  />
+                </label>
+                {sendError && <p className="text-sm text-destructive">{sendError}</p>}
                 <Honeypot value={website} onChange={setWebsite} />
                 <p className="text-xs text-muted-foreground">
                   Mit dem Absenden stimmen Sie unserer{" "}
@@ -289,8 +310,7 @@ export function Wizard({ onClose }: { onClose?: () => void }) {
               disabled={state === "sending"}
               className="btn-glow flex items-center gap-2 rounded-full px-6 py-3 font-bold disabled:opacity-70"
             >
-              {state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Nachricht
-              erstellen
+              {state === "sending" && <Loader2 className="h-4 w-4 animate-spin" />} Anfrage verbindlich abschicken
             </button>
           )}
         </div>

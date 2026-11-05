@@ -101,7 +101,7 @@ function buildMail(source: LeadSource, fields: [string, string][], replyTo?: str
     )
     .join("");
   return {
-    subject: `Neuer Lead für Fleckenlos Gebäudereinigung (${label})`,
+    subject: "Neue Online-Anfrage aus Köln – Fleckenlos Gebäudereinigung",
     html: `<h2>Neue Anfrage über ${label}</h2><table>${rows}</table>`,
     text: fields.map(([k, v]) => `${k}: ${v}`).join("\n"),
     ...(replyTo ? { replyTo } : {}),
@@ -144,7 +144,7 @@ export async function processQuoteLead(data: QuoteLead, deps: LeadDeps): Promise
   if (isSpam(data)) return { ok: true };
   await enforceRateLimit(deps.store, deps.ipHash, deps.now?.() ?? new Date());
 
-  const message = `Objektart: ${data.objektart} · Fläche: ca. ${data.flaeche} qm · Häufigkeit: ${data.haeufigkeit}`;
+  const message = `Objektart: ${data.objektart} · Fläche: ca. ${data.flaeche} qm · Häufigkeit: ${data.haeufigkeit}${data.nachricht ? ` · Nachricht: ${data.nachricht}` : ""}`;
   const row: LeadRow = {
     name: data.name,
     email: data.email,
@@ -164,6 +164,7 @@ export async function processQuoteLead(data: QuoteLead, deps: LeadDeps): Promise
       ["Leistung", SERVICE_FOR_OBJEKTART[data.objektart]],
       ["Fläche (qm)", String(data.flaeche)],
       ["Häufigkeit", data.haeufigkeit],
+      ["Nachricht", data.nachricht || "–"],
     ],
     data.email,
   );
@@ -238,7 +239,7 @@ export function resendMailer(env: {
   from: string | undefined;
 }): Mailer {
   return async (mail) => {
-    if (!env.apiKey || !env.to || !env.from) {
+    if (!env.apiKey) {
       throw new Error("mail not configured (RESEND_API_KEY / LEAD_INBOX / LEAD_FROM missing)");
     }
     const res = await fetch("https://api.resend.com/emails", {
@@ -246,15 +247,15 @@ export function resendMailer(env: {
       signal: AbortSignal.timeout(8000),
       headers: { Authorization: `Bearer ${env.apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: env.from,
-        to: [env.to],
+        from: env.from || "Fleckenlos Website <onboarding@resend.dev>",
+        to: [env.to || "info@fleckenlos.nrw"],
         subject: mail.subject,
         html: mail.html,
         text: mail.text,
         ...(mail.replyTo ? { reply_to: mail.replyTo } : {}),
       }),
     });
-    if (!res.ok) throw new Error(`resend responded ${res.status}`);
+    if (!res.ok) throw new Error(`resend responded ${res.status}: ${(await res.text()).slice(0, 300)}`);
   };
 }
 
