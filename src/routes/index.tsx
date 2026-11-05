@@ -19,15 +19,15 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Zuverlässige & erstklassige Reinigung für Büros, Praxen, Bau & Gewerbe in Köln. 5.0 ★ bei Google. Kostenloses Angebot anfordern.",
+          "Erstklassige & zuverlässige Gebäudereinigung in Köln. Büroreinigung, Bauendreinigung & Glasreinigung von Fleckenlos. Jetzt in 3 Klicks Angebot anfordern!",
       },
       {
         property: "og:title",
-        content: "Fleckenlos Gebäudereinigung – Ihr Gebäudereiniger in Köln",
+        content: "Fleckenlos Gebäudereinigung Köln – Büro-, Bau- & Glasreinigung",
       },
       {
         property: "og:description",
-        content: "High-End Gebäudereinigung: maßgeschneidert, zuverlässig, 5.0 ★ Google-Bewertung.",
+        content: "Erstklassige & zuverlässige Gebäudereinigung in Köln. Büroreinigung, Bauendreinigung & Glasreinigung von Fleckenlos. Jetzt in 3 Klicks Angebot anfordern!",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

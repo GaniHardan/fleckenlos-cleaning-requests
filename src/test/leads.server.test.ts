@@ -143,7 +143,7 @@ describe("store → mail", () => {
       source: "formular",
       mail_status: "sent",
     });
-    expect(mails[0]!.subject).toBe("Neuer Lead für Fleckenlos Gebäudereinigung (Formular)");
+    expect(mails[0]!.subject).toBe("Neue Online-Anfrage aus Köln – Fleckenlos Gebäudereinigung");
     expect(mails[0]!.html).toContain("Erika &lt;b&gt;Muster&lt;/b&gt;");
     expect(mails[0]!.html).not.toContain("<b>Muster</b>");
   });
@@ -182,7 +182,7 @@ describe("store → mail", () => {
   it("labels chatbot mails", async () => {
     const { store } = memoryStore();
     await processChatLead(chat, { store, mailer: okMailer, ipHash: null });
-    expect(mails[0]!.subject).toBe("Neuer Lead für Fleckenlos Gebäudereinigung (Chatbot)");
+    expect(mails[0]!.subject).toBe("Neue Online-Anfrage aus Köln – Fleckenlos Gebäudereinigung");
   });
 });
 

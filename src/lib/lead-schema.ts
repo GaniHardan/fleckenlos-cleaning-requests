@@ -64,6 +64,7 @@ export const quoteLeadSchema = z.object({
   objektart: z.enum(OBJEKTARTEN),
   flaeche: z.number().int().min(1).max(100_000),
   haeufigkeit: z.enum(HAEUFIGKEITEN),
+  nachricht: z.string().trim().max(2000).optional().default(""),
   ...antiSpam,
 });
 export type QuoteLeadInput = z.input<typeof quoteLeadSchema>;
