@@ -232,30 +232,33 @@ export function supabaseLeadStore(sb: SupabaseClient): LeadStore {
   };
 }
 
-/** Resend (https://resend.com). Use a sending domain created in the EU region (eu-west-1). */
-export function resendMailer(env: {
-  apiKey: string | undefined;
-  to: string | undefined;
-  from: string | undefined;
-}): Mailer {
+/**
+ * FormSubmit (https://formsubmit.co) – plain form POST, no own sending domain
+ * required. Fields come from the mail text ("Key: value" lines); reserved
+ * FormSubmit fields control subject, layout and reply-to.
+ */
+export function formsubmitMailer(env: { to: string | undefined }): Mailer {
   return async (mail) => {
-    if (!env.apiKey) {
-      throw new Error("mail not configured (RESEND_API_KEY / LEAD_INBOX / LEAD_FROM missing)");
-    }
-    const res = await fetch("https://api.resend.com/emails", {
+    const to = env.to || "info@fleckenlos.nrw";
+    const fields = Object.fromEntries(
+      mail.text.split("\n").map((line) => {
+        const i = line.indexOf(": ");
+        return i === -1 ? [line, ""] : [line.slice(0, i), line.slice(i + 2)];
+      }),
+    );
+    const res = await fetch(`https://formsubmit.co/${encodeURIComponent(to)}`, {
       method: "POST",
       signal: AbortSignal.timeout(8000),
-      headers: { Authorization: `Bearer ${env.apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: env.from || "Fleckenlos Website <onboarding@resend.dev>",
-        to: [env.to || "info@fleckenlos.nrw"],
-        subject: mail.subject,
-        html: mail.html,
-        text: mail.text,
-        ...(mail.replyTo ? { reply_to: mail.replyTo } : {}),
-      }),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        _subject: mail.subject,
+        _template: "table",
+        _captcha: "false",
+        ...(mail.replyTo ? { _replyto: mail.replyTo } : {}),
+        ...fields,
+      }).toString(),
     });
-    if (!res.ok) throw new Error(`resend responded ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    if (!res.ok) throw new Error(`formsubmit responded ${res.status}: ${(await res.text()).slice(0, 300)}`);
   };
 }
 
@@ -263,11 +266,7 @@ export async function productionDeps(clientIp: string | undefined): Promise<Lead
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return {
     store: supabaseLeadStore(supabaseAdmin as unknown as SupabaseClient),
-    mailer: resendMailer({
-      apiKey: process.env["RESEND_API_KEY"],
-      to: process.env["LEAD_INBOX"],
-      from: process.env["LEAD_FROM"],
-    }),
+    mailer: formsubmitMailer({ to: process.env["LEAD_INBOX"] }),
     ipHash: await hashIp(clientIp, process.env["LEAD_IP_SALT"]),
   };
 }
